@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Hone — Get Sharp</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07070a;--s1:#0d0d12;--s2:#121218;--s3:#18181f;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
+  --white:#f2f2f4;--muted:rgba(242,242,244,0.45);--faint:rgba(242,242,244,0.18);
+  --blue:#4f8ef7;--blue-d:rgba(79,142,247,0.14);--blue-dd:rgba(79,142,247,0.07);
+  --yellow:#f0c14a;--yellow-d:rgba(240,193,74,0.14);--yellow-dd:rgba(240,193,74,0.07);
+  --red:#e05555;--red-d:rgba(224,85,85,0.13);
+  --green:#3db87a;--green-d:rgba(61,184,122,0.13);
+  --font:'Plus Jakarta Sans',-apple-system,sans-serif;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--white);font-family:var(--font);font-size:16px;line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:.3}
+
+/* CURSOR */
+.cursor{position:fixed;width:10px;height:10px;background:var(--blue);border-radius:50%;pointer-events:none;z-index:10000;transform:translate(-50%,-50%);transition:width .2s,height .2s,background .2s;mix-blend-mode:screen}
+.cursor-ring{position:fixed;width:36px;height:36px;border:1px solid rgba(79,142,247,0.4);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:all .12s ease}
+.cursor.hov{width:20px;height:20px;background:var(--yellow)}
+.cursor-ring.hov{width:50px;height:50px;border-color:rgba(240,193,74,0.4)}
+
+/* PROGRESS */
+.prog{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,var(--blue),var(--yellow));z-index:9997;width:0%;box-shadow:0 0 8px var(--blue)}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:22px 48px;display:flex;align-items:center;justify-content:space-between;transition:all .4s}
+nav.scrolled{background:rgba(7,7,10,0.85);border-bottom:1px solid var(--border);backdrop-filter:blur(24px);padding:14px 48px}
+.nav-logo{font-size:20px;font-weight:800;letter-spacing:-.8px;color:var(--white);text-decoration:none;display:flex;align-items:center;gap:2px}
+.nav-dot{width:7px;height:7px;border-radius:50%;background:var(--yellow);display:inline-block;margin-bottom:6px;animation:blink 3s infinite}
+@keyframes blink{0%,90%,100%{opacity:1}95%{opacity:0}}
+.nav-links{display:flex;align-items:center;gap:36px;list-style:none}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s}
+.nav-links a:hover{color:var(--white)}
+.nav-btn{background:rgba(255,255,255,0.08);border:1px solid var(--border2);color:var(--white)!important;padding:9px 22px;border-radius:100px;font-weight:600!important;font-size:13px!important;transition:all .2s!important;backdrop-filter:blur(10px)}
+.nav-btn:hover{background:rgba(255,255,255,0.14)!important;transform:translateY(-1px)}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:140px 24px 60px;position:relative;overflow:hidden}
+.hero-orb{position:absolute;top:5%;left:50%;transform:translateX(-50%);width:900px;height:600px;background:radial-gradient(ellipse,rgba(79,142,247,0.07) 0%,rgba(240,193,74,0.04) 45%,transparent 72%);pointer-events:none;filter:blur(40px)}
+.hero-chip{display:inline-flex;align-items:center;gap:8px;background:var(--blue-dd);border:1px solid rgba(79,142,247,0.2);border-radius:100px;padding:6px 16px;font-size:12px;font-weight:600;color:var(--blue);letter-spacing:.3px;margin-bottom:32px;animation:fadeUp .7s ease both}
+.chip-pulse{width:6px;height:6px;border-radius:50%;background:var(--blue);animation:ripple 2s infinite}
+@keyframes ripple{0%{box-shadow:0 0 0 0 rgba(79,142,247,.5)}70%{box-shadow:0 0 0 8px rgba(79,142,247,0)}100%{box-shadow:0 0 0 0 rgba(79,142,247,0)}}
+.hero h1{font-size:clamp(52px,8.5vw,100px);font-weight:800;line-height:.97;letter-spacing:-4px;margin-bottom:24px;animation:fadeUp .7s ease .08s both}
+.hl-blue{color:var(--blue)}.hl-yellow{color:var(--yellow)}
+.hero-sub{font-size:clamp(16px,2vw,18px);color:var(--muted);max-width:480px;font-weight:400;line-height:1.75;margin-bottom:40px;animation:fadeUp .7s ease .16s both}
+.hero-actions{display:flex;align-items:center;gap:12px;animation:fadeUp .7s ease .24s both;flex-wrap:wrap;justify-content:center}
+.btn-cta{background:linear-gradient(135deg,var(--blue),#6aa3ff);color:#fff;padding:13px 28px;border-radius:100px;font-weight:700;font-size:15px;text-decoration:none;border:none;cursor:pointer;font-family:var(--font);box-shadow:0 8px 28px rgba(79,142,247,0.3);transition:all .2s;letter-spacing:-.2px}
+.btn-cta:hover{transform:translateY(-2px);box-shadow:0 14px 40px rgba(79,142,247,0.4)}
+.btn-outline{color:var(--muted);font-size:15px;text-decoration:none;font-weight:500;display:flex;align-items:center;gap:8px;padding:13px 22px;border-radius:100px;border:1px solid var(--border);transition:all .2s}
+.btn-outline:hover{color:var(--white);border-color:var(--border2)}
+.hero-proof{margin-top:52px;display:flex;align-items:center;gap:12px;color:var(--faint);font-size:13px;font-weight:500;animation:fadeUp .7s ease .32s both}
+.proof-avs{display:flex}
+.proof-av{width:28px;height:28px;border-radius:50%;border:2px solid var(--bg);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;margin-left:-7px}
+.proof-av:first-child{margin-left:0}
+.proof-stars{color:var(--yellow);font-size:12px;letter-spacing:-1px}
+
+/* DEMO */
+.demo{padding:32px 24px 60px;max-width:1020px;margin:0 auto}
+.demo-lbl{text-align:center;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--faint);margin-bottom:20px}
+.demo-win{background:var(--s1);border:1px solid var(--border);border-radius:22px;overflow:hidden;box-shadow:0 0 0 1px var(--border),0 40px 100px rgba(0,0,0,0.6),0 0 60px rgba(79,142,247,0.04);animation:fadeUp .9s ease .1s both}
+.demo-bar{background:var(--s2);padding:12px 18px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
+.demo-dots{display:flex;gap:6px}
+.d-dot{width:11px;height:11px;border-radius:50%}
+.d-dot.r{background:#ff5f57}.d-dot.y{background:#ffbd2e}.d-dot.g{background:#28c840}
+.demo-url{flex:1;background:rgba(255,255,255,0.04);border-radius:6px;padding:4px 12px;font-size:12px;color:var(--faint);text-align:center;border:1px solid var(--border)}
+.demo-body{padding:20px;display:flex;flex-direction:column;gap:16px}
+
+/* Videos */
+.vids{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.vid-card{background:var(--s2);border-radius:14px;border:1px solid var(--border);overflow:hidden;transition:border-color .2s}
+.vid-card:hover{border-color:var(--border2)}
+.vid-head{padding:10px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.vid-lbl{font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--faint)}
+.vid-lbl.viral{color:var(--blue)}
+.vid-score{font-size:12px;font-weight:700;padding:3px 10px;border-radius:100px}
+.score-bad{background:var(--red-d);color:#e07070}
+.score-good{background:var(--blue-d);color:var(--blue)}
+.vid-thumb{height:140px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.vid-thumb.yours{background:linear-gradient(145deg,#111116,#1a1a22)}
+.vid-thumb.virl{background:linear-gradient(145deg,#0d1420,#111a2a)}
+.vid-waveform{position:absolute;bottom:0;left:0;right:0;height:36px;display:flex;align-items:flex-end;gap:2px;padding:0 10px 6px}
+.wf-bar{flex:1;border-radius:2px 2px 0 0;opacity:.3}
+
+/* Timeline */
+.tl-panel{background:var(--s2);border-radius:14px;border:1px solid var(--border);padding:18px 20px}
+.tl-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.tl-title{font-size:13px;font-weight:600;color:var(--muted)}
+.tl-leg{display:flex;gap:14px}
+.tl-li{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--faint);font-weight:500}
+.tl-line{width:16px;height:3px;border-radius:2px}
+.tl-rows{display:flex;flex-direction:column;gap:10px;margin-bottom:8px}
+.tl-row{display:flex;align-items:center;gap:12px}
+.tl-lbl{font-size:10px;color:var(--faint);width:42px;text-align:right;flex-shrink:0;text-transform:uppercase;letter-spacing:.6px;font-weight:600}
+.tl-track{flex:1;height:11px;background:rgba(255,255,255,0.04);border-radius:100px;position:relative;overflow:visible}
+.tl-fill{height:100%;border-radius:100px}
+.tl-fill.yours{width:38%;background:linear-gradient(90deg,var(--green),var(--yellow) 50%,var(--red));opacity:.7}
+.tl-fill.virl{width:92%;background:linear-gradient(90deg,var(--green),var(--blue));opacity:.85}
+.tl-pin{position:absolute;top:50%;transform:translate(-50%,-50%);width:13px;height:13px;border-radius:50%;border:2px solid var(--s2);cursor:pointer;z-index:5;transition:transform .15s,box-shadow .15s}
+.tl-pin:hover{transform:translate(-50%,-50%) scale(1.6)}
+.pin-r{background:var(--red)}.pin-y{background:var(--yellow)}.pin-g{background:var(--green)}
+.tl-pin:hover.pin-r{box-shadow:0 0 10px var(--red)}
+.tl-pin:hover.pin-y{box-shadow:0 0 10px var(--yellow)}
+.tl-pin:hover.pin-g{box-shadow:0 0 10px var(--green)}
+.tl-ticks{display:flex;justify-content:space-between;padding-left:54px}
+.tl-tick{font-size:10px;color:var(--faint);font-weight:500}
+
+/* Issues */
+.issues{display:flex;flex-direction:column;border-radius:14px;overflow:hidden;border:1px solid var(--border)}
+.issue{display:flex;align-items:center;gap:14px;padding:13px 16px;background:var(--s2);cursor:pointer;transition:background .15s;border-bottom:1px solid var(--border);position:relative;overflow:hidden}
+.issue:last-child{border-bottom:none}
+.issue:hover{background:var(--s3)}
+.i-bar{width:3px;height:34px;border-radius:2px;flex-shrink:0}
+.i-bar.r{background:var(--red)}.i-bar.y{background:var(--yellow)}.i-bar.g{background:var(--green)}
+.i-body{flex:1}
+.i-time{font-size:11px;color:var(--faint);font-weight:600;letter-spacing:.3px;margin-bottom:2px}
+.i-text{font-size:14px;font-weight:500;color:var(--white)}
+.i-arrow{font-size:16px;color:var(--faint);transition:transform .2s,color .2s}
+.issue:hover .i-arrow{transform:translateX(4px);color:var(--blue)}
+
+/* DRAWER */
+.drawer-bg{position:fixed;inset:0;background:rgba(0,0,0,0.65);backdrop-filter:blur(10px);z-index:600;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
+.drawer-bg.open{opacity:1;pointer-events:all}
+.drawer{background:var(--s1);border:1px solid var(--border2);border-bottom:none;border-radius:24px 24px 0 0;width:100%;max-width:600px;padding:0 28px 48px;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,.72,0,1);max-height:82vh;overflow-y:auto}
+.drawer-bg.open .drawer{transform:translateY(0)}
+.d-handle{width:40px;height:4px;background:rgba(255,255,255,0.1);border-radius:2px;margin:16px auto 24px}
+.d-badge{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;padding:4px 12px;border-radius:100px;margin-bottom:12px}
+.d-badge.r{background:var(--red-d);color:#e07070}
+.d-badge.y{background:var(--yellow-d);color:var(--yellow)}
+.d-badge.g{background:var(--green-d);color:var(--green)}
+.d-title{font-size:21px;font-weight:800;letter-spacing:-.7px;line-height:1.2;margin-bottom:10px}
+.d-what{font-size:14px;color:var(--muted);font-weight:400;line-height:1.7;margin-bottom:22px;padding-bottom:22px;border-bottom:1px solid var(--border)}
+.d-fix-label{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--blue);margin-bottom:12px}
+.d-fixes{display:flex;flex-direction:column;gap:9px}
+.d-fix{display:flex;gap:12px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:12px;padding:13px 15px;transition:border-color .2s}
+.d-fix:hover{border-color:rgba(79,142,247,0.25)}
+.d-num{width:22px;height:22px;border-radius:50%;background:var(--blue-d);color:var(--blue);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.d-fix-text{font-size:14px;color:var(--muted);font-weight:400;line-height:1.6}
+
+/* HOW */
+.how{padding:80px 24px;max-width:940px;margin:0 auto;text-align:center}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--blue);margin-bottom:14px}
+.section-h{font-size:clamp(34px,5vw,56px);font-weight:800;letter-spacing:-2.5px;line-height:1.05;margin-bottom:16px}
+.section-sub{color:var(--muted);font-size:16px;font-weight:400;max-width:440px;margin:0 auto 48px;line-height:1.75}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;border-radius:20px;overflow:hidden;border:1px solid var(--border);background:var(--border)}
+.step{background:var(--s1);padding:36px 28px;text-align:left;transition:background .3s;position:relative;overflow:hidden}
+.step::after{content:'';position:absolute;inset:0;opacity:0;background:linear-gradient(135deg,var(--blue-dd),transparent);transition:opacity .3s}
+.step:hover{background:var(--s2)}.step:hover::after{opacity:1}
+.step-num{font-size:56px;font-weight:800;color:rgba(255,255,255,0.04);line-height:1;margin-bottom:16px;letter-spacing:-3px}
+.step-icon{font-size:26px;margin-bottom:14px}
+.step-title{font-size:17px;font-weight:700;letter-spacing:-.4px;margin-bottom:8px}
+.step-desc{color:var(--muted);font-size:14px;line-height:1.7}
+
+/* FEATURES */
+.features{padding:60px 24px 80px;max-width:1020px;margin:0 auto}
+.feat-header{text-align:center;margin-bottom:44px}
+.feat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:2px;border-radius:20px;overflow:hidden;border:1px solid var(--border);background:var(--border)}
+.feat{background:var(--s1);padding:36px;transition:background .3s;position:relative;overflow:hidden}
+.feat:hover{background:var(--s2)}
+.feat.blue-card{background:var(--blue-dd)}.feat.blue-card:hover{background:rgba(79,142,247,0.09)}
+.feat.yellow-card{background:var(--yellow-dd)}.feat.yellow-card:hover{background:rgba(240,193,74,0.09)}
+.feat-icon{width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,0.05);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:18px}
+.feat.blue-card .feat-icon{background:var(--blue-d);border-color:rgba(79,142,247,0.25)}
+.feat.yellow-card .feat-icon{background:var(--yellow-d);border-color:rgba(240,193,74,0.25)}
+.feat-title{font-size:19px;font-weight:700;letter-spacing:-.4px;margin-bottom:10px}
+.feat.blue-card .feat-title{color:var(--blue)}.feat.yellow-card .feat-title{color:var(--yellow)}
+.feat-desc{color:var(--muted);font-size:14px;line-height:1.7}
+.feat.blue-card .feat-desc{color:rgba(79,142,247,0.6)}.feat.yellow-card .feat-desc{color:rgba(240,193,74,0.6)}
+
+/* PROOF */
+.proof-strip{padding:60px 24px 80px;max-width:940px;margin:0 auto;text-align:center}
+.proof-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;border-radius:20px;overflow:hidden;border:1px solid var(--border);background:var(--border);margin-top:40px}
+.proof-card{background:var(--s1);padding:28px;transition:background .3s}
+.proof-card:hover{background:var(--s2)}
+.proof-stars{color:var(--yellow);font-size:13px;letter-spacing:1px;margin-bottom:12px}
+.proof-text{font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:18px}
+.proof-author{display:flex;align-items:center;gap:10px}
+.proof-av2{width:34px;height:34px;border-radius:50%;background:var(--s3);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;border:1px solid var(--border)}
+.proof-name{font-size:13px;font-weight:600;color:var(--white)}
+.proof-handle{font-size:11px;color:var(--faint);margin-top:1px}
+
+/* CTA */
+.cta-wrap{padding:60px 24px 120px;text-align:center;position:relative}
+.cta-glow{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:800px;height:400px;background:radial-gradient(ellipse,rgba(79,142,247,0.07) 0%,rgba(240,193,74,0.03) 50%,transparent 70%);pointer-events:none;filter:blur(40px)}
+.cta-h{font-size:clamp(38px,6vw,68px);font-weight:800;letter-spacing:-3px;line-height:1.02;margin-bottom:18px}
+.cta-sub{color:var(--muted);font-size:16px;font-weight:400;margin-bottom:36px;max-width:360px;margin-left:auto;margin-right:auto;line-height:1.7}
+
+/* FOOTER */
+footer{border-top:1px solid var(--border);padding:28px 48px;display:flex;align-items:center;justify-content:space-between}
+.foot-logo{font-size:18px;font-weight:800;letter-spacing:-.5px;display:flex;align-items:center;gap:2px}
+.foot-dot{width:6px;height:6px;border-radius:50%;background:var(--yellow);display:inline-block;margin-bottom:4px}
+.foot-links{display:flex;gap:24px}
+.foot-links a{font-size:13px;color:var(--faint);text-decoration:none;font-weight:500;transition:color .2s}
+.foot-links a:hover{color:var(--white)}
+.foot-copy{font-size:12px;color:var(--faint)}
+
+/* ANIMATIONS */
+/* PRICING STRIP */
+.pricing-strip{padding:20px 24px 48px;max-width:1020px;margin:0 auto}
+.ps-inner{
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--s1);border:1px solid var(--border);
+  border-radius:18px;padding:22px 28px;gap:24px;
+  transition:border-color .2s;
+}
+.ps-inner:hover{border-color:var(--border2)}
+.ps-left{display:flex;align-items:center;gap:20px;flex:1;flex-wrap:wrap}
+.ps-free{display:flex;align-items:center;gap:10px}
+.ps-free-badge{
+  font-size:11px;font-weight:700;letter-spacing:.8px;
+  text-transform:uppercase;padding:4px 12px;border-radius:100px;
+  background:var(--green-d);color:var(--green);
+}
+.ps-free-text{font-size:13px;color:var(--muted);font-weight:400}
+.ps-divider{width:1px;height:32px;background:var(--border);flex-shrink:0}
+.ps-pro{display:flex;align-items:center;gap:12px}
+.ps-pro-price{
+  font-size:28px;font-weight:800;letter-spacing:-1.5px;
+  color:var(--white);line-height:1;
+}
+.ps-dollar{font-size:16px;font-weight:600;vertical-align:super;margin-right:1px;color:var(--muted)}
+.ps-pro-info{display:flex;flex-direction:column;gap:2px}
+.ps-pro-label{font-size:13px;font-weight:600;color:var(--white)}
+.ps-pro-sub{font-size:11px;color:var(--faint);font-weight:400}
+.ps-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0}
+.ps-note{font-size:11px;color:var(--faint);font-weight:400}
+@media(max-width:768px){
+  .ps-inner{flex-direction:column;align-items:flex-start}
+  .ps-right{align-items:flex-start;width:100%}
+  .ps-right .btn-cta{width:100%;text-align:center}
+}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .75s ease,transform .75s ease}
+.reveal.on{opacity:1;transform:translateY(0)}
+
+@media(max-width:768px){
+  nav{padding:14px 20px}
+  .nav-links{display:none}
+  .vids,.steps,.feat-grid,.proof-grid,.price-cards{grid-template-columns:1fr}
+  footer{flex-direction:column;gap:16px;text-align:center}
+  .foot-links{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cur"></div>
+<div class="cursor-ring" id="curR"></div>
+<div class="prog" id="prog"></div>
+
+<nav id="nav">
+  <a href="#" class="nav-logo">Hone<span class="nav-dot"></span></a>
+  <ul class="nav-links">
+    <li><a href="#how">How it works</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#pricing" class="nav-btn">Get started free</a></li>
+  </ul>
+</nav>
+
+<section class="hero">
+  <div class="hero-orb"></div>
+  <div class="hero-chip"><div class="chip-pulse"></div>AI Content Coach for Creators</div>
+  <h1>Stop posting.<br/>Start <span class="hl-blue">growing</span><span class="hl-yellow">.</span></h1>
+  <p class="hero-sub">Upload your video. Hone finds the most viral content in your niche and shows you — second by second — exactly what to fix.</p>
+  <div class="hero-actions">
+    <a href="#pricing" class="btn-cta">Analyze my first video free</a>
+    <a href="#how" class="btn-outline">See how it works <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+  </div>
+  <div class="hero-proof">
+    <div class="proof-avs">
+      <div class="proof-av" style="background:#3a4a6b">G</div>
+      <div class="proof-av" style="background:#2a5a4a">A</div>
+      <div class="proof-av" style="background:#6b3a2a">M</div>
+      <div class="proof-av" style="background:#4a3a6b">J</div>
+    </div>
+    <div class="proof-stars">★★★★★</div>
+    Join 2,400+ creators getting sharp
+  </div>
+</section>
+
+<section class="demo">
+  <div class="demo-lbl">Live preview — click any issue to see the fix</div>
+  <div class="demo-win">
+    <div class="demo-bar">
+      <div class="demo-dots"><div class="d-dot r"></div><div class="d-dot y"></div><div class="d-dot g"></div></div>
+      <div class="demo-url">app.hone.so — Analysis Complete ✦ Fitness Niche</div>
+    </div>
+    <div class="demo-body">
+      <div class="vids">
+        <div class="vid-card">
+          <div class="vid-head"><span class="vid-lbl">Your Video</span><span class="vid-score score-bad">34 / 100</span></div>
+          <div class="vid-thumb yours">
+            <svg width="42" height="42" viewBox="0 0 44 44" fill="none"><circle cx="22" cy="22" r="18" stroke="rgba(255,255,255,0.07)" stroke-width="1.5"/><path d="M18 14l12 8-12 8V14z" fill="rgba(224,85,85,0.4)"/></svg>
+            <div class="vid-waveform" id="wf1"></div>
+          </div>
+        </div>
+        <div class="vid-card">
+          <div class="vid-head"><span class="vid-lbl viral">Viral Reference</span><span class="vid-score score-good">91 / 100</span></div>
+          <div class="vid-thumb virl">
+            <svg width="42" height="42" viewBox="0 0 44 44" fill="none"><circle cx="22" cy="22" r="18" stroke="rgba(79,142,247,0.15)" stroke-width="1.5"/><path d="M18 14l12 8-12 8V14z" fill="rgba(79,142,247,0.5)"/></svg>
+            <div class="vid-waveform" id="wf2"></div>
+          </div>
+        </div>
+      </div>
+      <div class="tl-panel">
+        <div class="tl-top">
+          <div class="tl-title">Retention Comparison</div>
+          <div class="tl-leg">
+            <div class="tl-li"><div class="tl-line" style="background:#555"></div>Yours</div>
+            <div class="tl-li"><div class="tl-line" style="background:var(--blue)"></div>Viral</div>
+          </div>
+        </div>
+        <div class="tl-rows">
+          <div class="tl-row">
+            <div class="tl-lbl">Yours</div>
+            <div class="tl-track">
+              <div class="tl-fill yours"></div>
+              <div class="tl-pin pin-r" style="left:6%" onclick="openDrawer('hook')"></div>
+              <div class="tl-pin pin-y" style="left:25%" onclick="openDrawer('pacing')"></div>
+              <div class="tl-pin pin-r" style="left:38%" onclick="openDrawer('dropoff')"></div>
+            </div>
+          </div>
+          <div class="tl-row">
+            <div class="tl-lbl">Viral</div>
+            <div class="tl-track">
+              <div class="tl-fill virl"></div>
+              <div class="tl-pin pin-g" style="left:6%" onclick="openDrawer('goodhook')"></div>
+              <div class="tl-pin pin-g" style="left:57%" onclick="openDrawer('reengage')"></div>
+            </div>
+          </div>
+        </div>
+        <div class="tl-ticks"><span class="tl-tick">0s</span><span class="tl-tick">15s</span><span class="tl-tick">30s</span><span class="tl-tick">45s</span><span class="tl-tick">60s</span></div>
+      </div>
+      <div class="issues">
+        <div class="issue" onclick="openDrawer('hook')"><div class="i-bar r"></div><div class="i-body"><div class="i-time">0:02 · Hook</div><div class="i-text">Weak opening — lost 40% of viewers in the first 3 seconds</div></div><div class="i-arrow">›</div></div>
+        <div class="issue" onclick="openDrawer('pacing')"><div class="i-bar y"></div><div class="i-body"><div class="i-time">0:08 · Pacing</div><div class="i-text">Dead air — your cuts are 3× slower than the viral video</div></div><div class="i-arrow">›</div></div>
+        <div class="issue" onclick="openDrawer('dropoff')"><div class="i-bar r"></div><div class="i-body"><div class="i-time">0:14 · Drop-off</div><div class="i-text">61% of viewers left here — promise gap after your hook</div></div><div class="i-arrow">›</div></div>
+        <div class="issue" onclick="openDrawer('caption')"><div class="i-bar y"></div><div class="i-body"><div class="i-time">Caption</div><div class="i-text">Your caption isn't doing any work — needs a hook</div></div><div class="i-arrow">›</div></div>
+        <div class="issue" onclick="openDrawer('audio')"><div class="i-bar g"></div><div class="i-body"><div class="i-time">Audio ✓</div><div class="i-text">Trending sound detected — post in the next 48 hours</div></div><div class="i-arrow">›</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING STRIP -->
+<section class="pricing-strip" id="pricing">
+  <div class="ps-inner reveal">
+    <div class="ps-left">
+      <div class="ps-free">
+        <span class="ps-free-badge">Free</span>
+        <span class="ps-free-text">2 analyses/month, always free</span>
+      </div>
+      <div class="ps-divider"></div>
+      <div class="ps-pro">
+        <span class="ps-pro-price"><span class="ps-dollar">$</span>29</span>
+        <div class="ps-pro-info">
+          <span class="ps-pro-label">Pro — everything, unlimited</span>
+          <span class="ps-pro-sub">Cancel anytime. No commitment.</span>
+        </div>
+      </div>
+    </div>
+    <div class="ps-right">
+      <a href="#" class="btn-cta">Try it free</a>
+      <div class="ps-note">No card required to start</div>
+    </div>
+  </div>
+</section>
+
+<section class="how" id="how">
+  <div class="eyebrow reveal">The process</div>
+  <h2 class="section-h reveal">Three steps.<br/>Zero guessing.</h2>
+  <p class="section-sub reveal">The work of a creative director who charges $5k/month — for less than a Netflix subscription.</p>
+  <div class="steps reveal">
+    <div class="step"><div class="step-num">01</div><div class="step-icon">🎯</div><div class="step-title">Set your niche</div><p class="step-desc">Tell Hone what you create. Fitness, finance, cars, cooking — Hone finds the most viral content in your exact niche, not generic trends.</p></div>
+    <div class="step"><div class="step-num">02</div><div class="step-icon">📤</div><div class="step-title">Upload your video</div><p class="step-desc">Drop in one video or your whole library. Hone analyzes every second — hook, pacing, audio, emotion, captions, editing rhythm. Everything.</p></div>
+    <div class="step"><div class="step-num">03</div><div class="step-icon">⚡</div><div class="step-title">Get your playbook</div><p class="step-desc">Side-by-side timeline vs. the viral reference. Exact fixes in plain English. Post knowing your content is dialed — not hoping it performs.</p></div>
+  </div>
+</section>
+
+<section class="features" id="features">
+  <div class="feat-header"><div class="eyebrow reveal">What you get</div><h2 class="section-h reveal">Every edge.<br/>One place.</h2></div>
+  <div class="feat-grid reveal">
+    <div class="feat blue-card"><div class="feat-icon">🔬</div><div class="feat-title">Side-by-side timeline</div><p class="feat-desc">Your video vs. the viral reference on the same timeline. See the exact second you lose people and what the winner did differently.</p></div>
+    <div class="feat"><div class="feat-icon">🧠</div><div class="feat-title">Emotion mapping</div><p class="feat-desc">AI reads the emotional arc of both videos. Know where to build tension, where to release, and how to keep viewers locked in.</p></div>
+    <div class="feat"><div class="feat-icon">✂️</div><div class="feat-title">Edit flow analysis</div><p class="feat-desc">Cut timing, pacing, transitions — compared against what's working. Specific edit suggestions, not vague advice.</p></div>
+    <div class="feat yellow-card"><div class="feat-icon">#️⃣</div><div class="feat-title">Caption & hashtag scoring</div><p class="feat-desc">Your caption scored against high performers. Hashtag strategy optimized for your niche — not generic tags that bury you.</p></div>
+    <div class="feat"><div class="feat-icon">🎵</div><div class="feat-title">Trending audio matching</div><p class="feat-desc">Real-time trending sounds in your niche. Know which audio is peaking before you post — not after everyone else used it.</p></div>
+    <div class="feat"><div class="feat-icon">📤</div><div class="feat-title">Shareable breakdown card</div><p class="feat-desc">Auto-generated score card ready to post. "I ran my video through Hone..." — your content becomes your marketing.</p></div>
+  </div>
+</section>
+
+<section class="proof-strip">
+  <div class="eyebrow reveal">Creator love</div>
+  <h2 class="section-h reveal">Creators are <span class="hl-yellow">getting sharp</span></h2>
+  <div class="proof-grid reveal">
+    <div class="proof-card"><div class="proof-stars">★★★★★</div><p class="proof-text">"First video after using Hone got 2.4M views. The hook breakdown alone was worth it."</p><div class="proof-author"><div class="proof-av2">JR</div><div><div class="proof-name">Jake R.</div><div class="proof-handle">@jakelifts · 180K followers</div></div></div></div>
+    <div class="proof-card"><div class="proof-stars">★★★★★</div><p class="proof-text">"I went from 2K to 40K followers in 6 weeks. Hone showed me exactly where I was losing people."</p><div class="proof-author"><div class="proof-av2">SM</div><div><div class="proof-name">Sofia M.</div><div class="proof-handle">@sofiamoves · 41K followers</div></div></div></div>
+    <div class="proof-card"><div class="proof-stars">★★★★★</div><p class="proof-text">"Feels like having a coach who watched every video and told me exactly what to fix."</p><div class="proof-author"><div class="proof-av2">DK</div><div><div class="proof-name">Devon K.</div><div class="proof-handle">@devonfinance · 92K followers</div></div></div></div>
+  </div>
+</section>
+
+
+
+<section class="cta-wrap">
+  <div class="cta-glow"></div>
+  <h2 class="cta-h reveal">Your next video<br/><span class="hl-blue">will perform</span><span class="hl-yellow">.</span></h2>
+  <p class="cta-sub reveal">Stop posting and hoping. Start posting and knowing.</p>
+  <a href="#pricing" class="btn-cta reveal">Analyze my first video free</a>
+</section>
+
+<footer>
+  <div class="foot-logo">Hone<span class="foot-dot"></span></div>
+  <div class="foot-links"><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Contact</a></div>
+  <div class="foot-copy">© 2025 Hone. All rights reserved.</div>
+</footer>
+
+<div class="drawer-bg" id="drawerBg" onclick="closeDrawer(event)">
+  <div class="drawer" id="drawerEl">
+    <div class="d-handle"></div>
+    <div id="drawerContent"></div>
+  </div>
+</div>
+
+<script>
+// CURSOR
+const cur=document.getElementById('cur'),curR=document.getElementById('curR');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px'});
+(function animR(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;curR.style.left=rx+'px';curR.style.top=ry+'px';requestAnimationFrame(animR)})();
+document.querySelectorAll('a,button,.issue,.tl-pin,.price-card,.step,.feat,.proof-card').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cur.classList.add('hov');curR.classList.add('hov')});
+  el.addEventListener('mouseleave',()=>{cur.classList.remove('hov');curR.classList.remove('hov')});
+});
+
+// SCROLL
+window.addEventListener('scroll',()=>{
+  const p=window.scrollY/(document.body.scrollHeight-window.innerHeight);
+  document.getElementById('prog').style.width=(p*100)+'%';
+  document.getElementById('nav').classList.toggle('scrolled',window.scrollY>40);
+});
+
+// REVEAL
+const ro=new IntersectionObserver((entries)=>{
+  entries.forEach((e,i)=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('on'),i*80);ro.unobserve(e.target)}});
+},{threshold:.1});
+document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
+
+// WAVEFORMS
+function buildWave(id,color,seed){
+  const el=document.getElementById(id);if(!el)return;
+  for(let i=0;i<30;i++){const b=document.createElement('div');b.className='wf-bar';b.style.cssText=`height:${4+Math.abs(Math.sin(i*.7+seed)*22)+Math.random()*6}px;background:${color}`;el.appendChild(b)}
+}
+buildWave('wf1','#e05555',1.2);
+buildWave('wf2','#4f8ef7',2.4);
+
+// DRAWER
+const issues={
+  hook:{cls:'r',badge:'Critical',time:'0:02 · Hook',title:"Your hook isn't stopping the scroll",what:"You opened with a statement. The viral video opened with a question — which forces the brain to stay for the answer. You lost 40% of viewers before 3 seconds.",fixes:["Rewrite your first line as a question or bold claim — never a flat statement.","Start mid-action, not with a setup or intro.","Add a text overlay in the first frame to double-hit the hook visually."]},
+  pacing:{cls:'y',badge:'Warning',time:'0:08 · Pacing',title:"Dead air is killing your momentum",what:"You average a new cut every 4.1 seconds. The viral video cuts every 1.6 seconds. Stillness reads as boring to both viewers and the algorithm.",fixes:["Cut every pause over 0.5 seconds in the first 30 seconds.","Add a zoom or B-roll at 0:08 to fill the gap.","Speed up your audio 1.1× in post — viewers won't notice but energy tightens."]},
+  dropoff:{cls:'r',badge:'Critical',time:'0:14 · Drop-off',title:"61% of viewers left at this exact moment",what:"Your hook promised something exciting, then you slowed down to give context. Viewers feel cheated and bounce. This is called a promise gap.",fixes:["Deliver value before context — never explain first.","Add a 'wait for it' text overlay at 0:14 to re-hook them.","The viral video hit its first value moment at 0:11. You waited until 0:22."]},
+  caption:{cls:'y',badge:'Warning',time:'Caption',title:"Your caption isn't pulling any weight",what:"'New video! Check it out 🔥' gives the algorithm nothing and gives the viewer no reason to stop scrolling.",fixes:["Start with a searchable phrase your audience actually types.","Write it like a second hook — make them want to hit play.","End with a question to drive comments — TikTok's highest engagement signal."]},
+  audio:{cls:'g',badge:'Good',time:'Audio',title:"You picked a trending sound — nice work",what:"This audio is up 340% over the last 6 days. You're in the growth window — ideal time to use it before it peaks.",fixes:["Sync your first cut to the beat drop at 0:02.","Post within 48 hours before this sound peaks.","Consider a second video with this audio while it's still hot."]},
+  goodhook:{cls:'g',badge:'Good',time:'0:02 · Viral Hook',title:"Why their hook stopped the scroll",what:"They opened with a challenge to a common belief, framed as a question. It hits curiosity and identity at the same time — almost impossible to scroll past.",fixes:["Copy the structure: [Challenge a belief] + [Question].","They were already moving — walking, not standing still. Movement signals energy.","Text overlay at 0:01 reinforces the spoken hook visually — double the impact."]},
+  reengage:{cls:'g',badge:'Good',time:'0:28 · Re-hook',title:"They re-hooked viewers at the halfway point",what:"Right when people were about to leave, they dropped a surprising stat. Retention spiked 18% at this exact second. This is intentional.",fixes:["Add a re-hook at the 40–50% mark of every video.","Formula: surprising fact, tease of what's next, or callback to your hook.","'Most people don't know this...' is a proven re-hook trigger."]}
+};
+
+function openDrawer(key){
+  const d=issues[key];if(!d)return;
+  document.getElementById('drawerContent').innerHTML=`<div class="d-badge ${d.cls}">${d.badge}</div><div class="d-title">${d.title}</div><div class="d-what">${d.time}<br/><br/>${d.what}</div><div class="d-fix-label">How to fix it</div><div class="d-fixes">${d.fixes.map((f,i)=>`<div class="d-fix"><div class="d-num">${i+1}</div><div class="d-fix-text">${f}</div></div>`).join('')}</div>`;
+  document.getElementById('drawerBg').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeDrawer(e){if(e.target===document.getElementById('drawerBg')){document.getElementById('drawerBg').classList.remove('open');document.body.style.overflow=''}}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.getElementById('drawerBg').classList.remove('open');document.body.style.overflow=''}});
+</script>
+</body>
+</html>
